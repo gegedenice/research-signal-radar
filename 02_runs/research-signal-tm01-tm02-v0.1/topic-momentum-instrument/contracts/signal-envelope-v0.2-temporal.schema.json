@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smartbiblia.fr/schemas/research-signal-temporal-0.2.json",
+  "title": "Temporal extension for Research SignalEnvelope 0.2",
+  "$comment": "Apply together with the structural research-signal-common/0.1 contract.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "detected_at",
+    "analysis_context",
+    "evidence",
+    "provenance",
+    "temporal_context"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "signal-envelope/0.2"
+    },
+    "detected_at": {
+      "$ref": "#/$defs/dateTime"
+    },
+    "analysis_context": {
+      "type": "object",
+      "required": ["current_window", "reference"],
+      "properties": {
+        "current_window": {
+          "$ref": "#/$defs/dateWindow"
+        },
+        "reference": {
+          "type": "object",
+          "required": ["kind", "reference_id", "window"]
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["observed_at", "locator"],
+        "properties": {
+          "observed_at": {
+            "$ref": "#/$defs/dateTime"
+          },
+          "locator": {
+            "type": "object",
+            "required": ["kind", "id"]
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["observation_vintage", "backtest_data_mode"],
+      "properties": {
+        "observation_vintage": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "backtest_data_mode": {
+          "enum": ["observed_vintage", "retrospective_reconstruction"]
+        }
+      }
+    },
+    "temporal_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "emitted_at",
+        "information_cutoff",
+        "observation_vintage",
+        "cutoff_basis"
+      ],
+      "properties": {
+        "mode": {
+          "enum": ["observed_vintage", "retrospective_reconstruction"]
+        },
+        "emitted_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "information_cutoff": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "observation_vintage": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "cutoff_basis": {
+          "const": "publication_date"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dateWindow": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "$ref": "#/$defs/date"
+        },
+        "end": {
+          "$ref": "#/$defs/date"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,431 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://smartbiblia.fr/schemas/research-signal-common-0.1.json",
+  "title": "Research Signal Common Contract fixture bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "manifests",
+    "observations",
+    "signals",
+    "backtests"
+  ],
+  "properties": {
+    "schema_version": { "const": "research-signal-common/0.1" },
+    "manifests": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/queryManifest" }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/workObservation" }
+    },
+    "signals": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/signalEnvelope" }
+    },
+    "backtests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/backtestResult" }
+    }
+  },
+  "$defs": {
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "queryManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "source",
+        "observed_at",
+        "universe_id",
+        "query_fingerprint",
+        "parameters"
+      ],
+      "properties": {
+        "manifest_id": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "observed_at": { "$ref": "#/$defs/dateTime" },
+        "universe_id": { "type": "string", "minLength": 1 },
+        "query_fingerprint": { "type": "string", "minLength": 1 },
+        "parameters": { "type": "object" }
+      }
+    },
+    "topicRef": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "institutionRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "ror": { "type": ["string", "null"] },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "authorship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["author_id", "author_label", "position", "institutions"],
+      "properties": {
+        "author_id": { "type": "string", "minLength": 1 },
+        "author_label": { "type": "string", "minLength": 1 },
+        "position": {
+          "enum": ["first", "middle", "last", "unknown"]
+        },
+        "institutions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/institutionRef" }
+        }
+      }
+    },
+    "workObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation_id",
+        "work_id",
+        "observed_at",
+        "publication_date",
+        "work_type",
+        "title",
+        "doi",
+        "primary_topic",
+        "authorships",
+        "citation_snapshot",
+        "referenced_work_ids",
+        "inclusion",
+        "source"
+      ],
+      "properties": {
+        "observation_id": { "type": "string", "minLength": 1 },
+        "work_id": { "type": "string", "minLength": 1 },
+        "observed_at": { "$ref": "#/$defs/dateTime" },
+        "publication_date": { "$ref": "#/$defs/date" },
+        "work_type": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "doi": { "type": ["string", "null"] },
+        "primary_topic": { "$ref": "#/$defs/topicRef" },
+        "authorships": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/authorship" }
+        },
+        "citation_snapshot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cited_by_count", "provider"],
+          "properties": {
+            "cited_by_count": { "type": "integer", "minimum": 0 },
+            "provider": { "type": "string", "minLength": 1 }
+          }
+        },
+        "referenced_work_ids": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "inclusion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["universe_id", "reason", "matched_entity_ids"],
+          "properties": {
+            "universe_id": { "type": "string", "minLength": 1 },
+            "reason": { "type": "string", "minLength": 1 },
+            "matched_entity_ids": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["provider", "record_id", "manifest_id"],
+          "properties": {
+            "provider": { "type": "string", "minLength": 1 },
+            "record_id": { "type": "string", "minLength": 1 },
+            "manifest_id": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "dateWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "$ref": "#/$defs/date" },
+        "end": { "$ref": "#/$defs/date" }
+      }
+    },
+    "analysisContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_window", "reference"],
+      "properties": {
+        "current_window": { "$ref": "#/$defs/dateWindow" },
+        "reference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "reference_id", "window"],
+          "properties": {
+            "kind": {
+              "enum": ["historical_window", "cohort", "network_history"]
+            },
+            "reference_id": { "type": "string", "minLength": 1 },
+            "window": {
+              "oneOf": [
+                { "$ref": "#/$defs/dateWindow" },
+                { "type": "null" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "type",
+        "role",
+        "observed_at",
+        "locator",
+        "supports"
+      ],
+      "properties": {
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": [
+            "observation",
+            "metric",
+            "graph_edge",
+            "query_manifest",
+            "external_artifact"
+          ]
+        },
+        "role": { "type": "string", "minLength": 1 },
+        "observed_at": { "$ref": "#/$defs/dateTime" },
+        "locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id"],
+          "properties": {
+            "kind": {
+              "enum": ["observation", "query_manifest", "external"]
+            },
+            "id": { "type": "string", "minLength": 1 }
+          }
+        },
+        "supports": { "type": "string", "minLength": 1 }
+      }
+    },
+    "signalEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "signal_id",
+        "detected_at",
+        "detector",
+        "universe",
+        "subject",
+        "analysis_context",
+        "priority",
+        "confidence",
+        "summary",
+        "evidence",
+        "provenance",
+        "quality_flags",
+        "payload"
+      ],
+      "properties": {
+        "schema_version": { "const": "signal-envelope/0.1" },
+        "signal_id": { "type": "string", "minLength": 1 },
+        "detected_at": { "$ref": "#/$defs/dateTime" },
+        "detector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "version"],
+          "properties": {
+            "type": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        },
+        "universe": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["universe_id", "kind", "label", "scope_mode", "entity_ids"],
+          "properties": {
+            "universe_id": { "type": "string", "minLength": 1 },
+            "kind": { "enum": ["institution", "topic", "custom"] },
+            "label": { "type": "string", "minLength": 1 },
+            "scope_mode": { "type": "string", "minLength": 1 },
+            "entity_ids": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id", "label", "member_ids"],
+          "properties": {
+            "kind": {
+              "enum": ["topic", "work", "author", "institution", "collaboration"]
+            },
+            "id": { "type": "string", "minLength": 1 },
+            "label": { "type": "string", "minLength": 1 },
+            "member_ids": {
+              "type": "array",
+              "items": { "type": "string" },
+              "uniqueItems": true
+            }
+          }
+        },
+        "analysis_context": { "$ref": "#/$defs/analysisContext" },
+        "priority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["score", "method", "components"],
+          "properties": {
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "method": { "type": "string", "minLength": 1 },
+            "components": {
+              "type": "object",
+              "additionalProperties": { "type": "number" }
+            }
+          }
+        },
+        "confidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "score", "factors", "limitations"],
+          "properties": {
+            "level": { "enum": ["HIGH", "MEDIUM", "LOW", "VERY_LOW"] },
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "factors": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "limitations": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["headline", "why_unusual"],
+          "properties": {
+            "headline": { "type": "string", "minLength": 1 },
+            "why_unusual": { "type": "string", "minLength": 1 }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidenceItem" }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "run_id",
+            "query_manifest_id",
+            "observation_vintage",
+            "code_version",
+            "parameter_set_id",
+            "backtest_data_mode"
+          ],
+          "properties": {
+            "run_id": { "type": "string", "minLength": 1 },
+            "query_manifest_id": { "type": "string", "minLength": 1 },
+            "observation_vintage": { "$ref": "#/$defs/dateTime" },
+            "code_version": { "type": "string", "minLength": 1 },
+            "parameter_set_id": { "type": "string", "minLength": 1 },
+            "backtest_data_mode": {
+              "enum": ["observed_vintage", "retrospective_reconstruction"]
+            }
+          }
+        },
+        "quality_flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "payload": {
+          "type": "object",
+          "required": ["payload_schema"],
+          "properties": {
+            "payload_schema": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "backtestResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backtest_id",
+        "signal_id",
+        "cutoff",
+        "horizon_end",
+        "metrics",
+        "automatic_outcome",
+        "human_review"
+      ],
+      "properties": {
+        "backtest_id": { "type": "string", "minLength": 1 },
+        "signal_id": { "type": "string", "minLength": 1 },
+        "cutoff": { "$ref": "#/$defs/dateTime" },
+        "horizon_end": { "$ref": "#/$defs/date" },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": { "type": ["number", "integer", "boolean", "string", "null"] }
+        },
+        "automatic_outcome": {
+          "enum": ["PERSISTED", "FADED", "CONFIRMED", "INCONCLUSIVE"]
+        },
+        "human_review": {
+          "oneOf": [
+            {
+              "enum": [
+                "actionable",
+                "interesting_but_expected",
+                "noise",
+                "data_artifact",
+                "too_late",
+                "potentially_useful_early_warning"
+              ]
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  }
+}
