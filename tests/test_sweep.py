@@ -41,7 +41,7 @@ def test_sweep_writes_snapshot_and_second_run_gets_suffix(config):
     manifest = json.loads((path / "manifest.json").read_text())
     assert manifest["expected_count"] == manifest["harvested_count"] == 5
     assert manifest["observed_at"] == "2026-10-20T08:14:03Z"
-    assert manifest["client_version"] == "1.0.0" and manifest["radar_version"] == "0.1.0"
+    assert manifest["client_version"] == "1.0.1" and manifest["radar_version"] == "0.1.0"
     assert manifest["config_hash"] == config.config_hash
     assert manifest["openalex_credits_used"] == 3  # three list pages
     assert manifest["universe"]["root_institution"] == "I4210166444"
