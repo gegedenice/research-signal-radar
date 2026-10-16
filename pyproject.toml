@@ -1,0 +1,30 @@
+[project]
+name = "research-signal-radar"
+version = "0.1.0"
+description = "Delta Radar: sweep an institution's OpenAlex output, detect significant changes, map them"
+requires-python = ">=3.11"
+dependencies = [
+    "openalex-api-client[tables] @ git+https://github.com/gegedenice/openalex-api-client@v1.0.0",
+    "pandas>=2.1",
+    "pyarrow>=14",
+    "typer>=0.12",
+]
+
+[project.scripts]
+radar = "radar.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/radar"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

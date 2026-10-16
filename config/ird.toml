@@ -1,0 +1,57 @@
+# Research Signal Radar — universe and parameters (specs/03 §1).
+# Secrets never go here: OPENALEX_API_KEY and ALBERT_API_KEY come from .env.
+
+[universe]
+id = "ird-articles-2016-2025"
+label = "IRD — articles 2016–2025"
+root_institution = "I4210166444"          # IRD; anchors = institutions whose lineage contains it
+filter = "authorships.institutions.lineage:I4210166444,type:article,publication_year:2016-2025,is_retracted:false"
+first_year = 2016                         # 2016–2018 = baseline only; first cutoff 2019
+last_year = 2025
+# Measured October 2026: 47,848 works for 2020–2025, 77,831 for 2016–2025.
+
+[sweep]
+data_dir = "data"
+select = [
+  "id", "doi", "title", "publication_date", "publication_year", "type", "language",
+  "primary_topic", "topics", "authorships", "cited_by_count", "counts_by_year", "fwci",
+  "abstract_inverted_index", "open_access", "primary_location", "sustainable_development_goals",
+  "is_retracted", "updated_date",
+]
+refetch_truncated_authors = true          # singleton gets are free; list results cut authors at 100
+
+[periods]
+mode = "year"                             # "year" | "semester" — see 04 §2; decided at build step 2
+window_months = 12                        # current window, both modes
+baseline_months = 36
+
+[engine]
+alpha = 0.05                              # BH false discovery rate
+min_log2_ratio = 0.585                    # |share ratio| ≥ 1.5
+
+[detectors.topics]
+levels = ["topic", "subfield"]
+min_support = 10                          # current + baseline works
+
+[detectors.citations]
+min_age_years = 2
+min_current = 5
+min_cohort_size = 20
+directions = ["up"]
+
+[detectors.collaborations]
+levels = ["institution", "country"]
+min_support = 5
+max_authors = 50
+exclude_countries = []                    # e.g. ["FR"] to hide domestic partners
+
+[semantic]
+base_url = "https://albert.api.etalab.gouv.fr/v1"
+model = "BAAI/bge-m3"
+api_key_env = "ALBERT_API_KEY"
+batch_size = 64
+max_chars = 4000
+min_cluster_size = 60
+n_regions = 20
+extra_stopwords = ["study", "results", "using", "based", "analysis", "data", "paper", "approach", "effect", "effects"]
+random_state = 42
