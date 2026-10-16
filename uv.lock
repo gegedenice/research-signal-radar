@@ -393,8 +393,8 @@ wheels = [
 
 [[package]]
 name = "openalex-api-client"
-version = "1.0.0"
-source = { git = "https://github.com/gegedenice/openalex-api-client?rev=v1.0.0#fe2e353783bf7b54eb7e61972766714d534f240f" }
+version = "1.0.1"
+source = { git = "https://github.com/gegedenice/openalex-api-client?rev=v1.0.1#382c7ddcd6bddcd94c0263f17c04b739ea326657" }
 dependencies = [
     { name = "requests" },
 ]
@@ -621,7 +621,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "openalex-api-client", extras = ["tables"], git = "https://github.com/gegedenice/openalex-api-client?rev=v1.0.0" },
+    { name = "openalex-api-client", extras = ["tables"], git = "https://github.com/gegedenice/openalex-api-client?rev=v1.0.1" },
     { name = "pandas", specifier = ">=2.1" },
     { name = "pyarrow", specifier = ">=14" },
     { name = "typer", specifier = ">=0.12" },

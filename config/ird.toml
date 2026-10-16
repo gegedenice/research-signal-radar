@@ -9,6 +9,9 @@ filter = "authorships.institutions.lineage:I4210166444,type:article,publication_
 first_year = 2016                         # 2016–2018 = baseline only; first cutoff 2019
 last_year = 2025
 # Measured October 2026: 47,848 works for 2020–2025, 77,831 for 2016–2025.
+# Sweep 2026-10-16: 77,831 harvested = expected. Abstract coverage 71% (2016) → 86% (2025),
+# 77% overall. Anchor materialized in 100% of works. counts_by_year covers 2012–2026
+# (2026 partial), so every citation cutoff 2019–2025 has data.
 
 [sweep]
 data_dir = "data"
@@ -21,7 +24,10 @@ select = [
 refetch_truncated_authors = true          # singleton gets are free; list results cut authors at 100
 
 [periods]
-mode = "year"                             # "year" | "semester" — see 04 §2; decided at build step 2
+# Decided at build step 2 (sweep 2026-10-16): year mode. January-1 dates are 11.2% overall
+# (> 5%) and above 15% in four fields with ≥ 500 works: Social Sciences 44.6%, Arts and
+# Humanities 45.3%, Psychology 22.5%, Economics 19.6%. Semester mode is not allowed (04 §2.3).
+mode = "year"                             # "year" | "semester" — see 04 §2
 window_months = 12                        # current window, both modes
 baseline_months = 36
 
@@ -42,7 +48,10 @@ directions = ["up"]
 [detectors.collaborations]
 levels = ["institution", "country"]
 min_support = 5
+# Step 2 decision: keep 50. n_authors median 6, p90 16, p99 88, max 2,467; 1,558 works (2.0%)
+# above 50, 647 above 100 (author lists re-read in full: 657).
 max_authors = 50
+# Step 2 decision: keep French partners; revisit at step 4 if they crowd the feed.
 exclude_countries = []                    # e.g. ["FR"] to hide domestic partners
 
 [semantic]
