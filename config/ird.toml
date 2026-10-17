@@ -41,6 +41,9 @@ min_log2_ratio = 0.585                    # |share ratio| ≥ 1.5
 
 [detectors.topics]
 levels = ["topic", "subfield"]
+# Step 4 decision: count all topics of a work (04 §4.1 amendment). At alpha 0.10, floor ×1.5,
+# primary → all: topics 31 → 54 signals over all cutoffs (2025: 2 → 4), subfields 13 → 25
+# (2025: 2 → 7); topics tested at 2025: 515 → 1,255.
 counting = "all"                          # "all" (up to 3 topics per work) | "primary" — 04 §4.1 amendment
 min_support = 10                          # current + baseline works
 

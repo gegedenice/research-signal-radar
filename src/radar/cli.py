@@ -76,5 +76,17 @@ def brief(sweep: str = typer.Option("latest", help="latest or a sweep id"), conf
     typer.echo(str(write_brief(_sweep_dir(cfg, sweep), cfg)))
 
 
+@app.command()
+def embed(sweep: str = typer.Option("latest", help="latest or a sweep id"), config: Path = CONFIG):
+    """Embed title + abstract with Albert (cached: only new texts are sent)."""
+    from .semantic.embed import run_embed
+
+    cfg = load_config(config)
+    meta = run_embed(_sweep_dir(cfg, sweep), cfg)
+    typer.echo(f"{meta['mapped']} works embedded with {meta['model_id']}: {meta['embedded_now']} new, "
+               f"{meta['from_cache']} from cache, {meta['tokens']:,} tokens, cost {meta['cost']} "
+               f"in {meta['seconds']} s")
+
+
 if __name__ == "__main__":
     app()

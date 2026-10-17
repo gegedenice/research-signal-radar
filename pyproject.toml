@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Delta Radar: sweep an institution's OpenAlex output, detect significant changes, map them"
 requires-python = ">=3.11"
 dependencies = [
+    "httpx>=0.27",
     "numpy>=1.26",
     "openalex-api-client[tables] @ git+https://github.com/gegedenice/openalex-api-client@v1.0.1",
     "pandas>=2.1",
