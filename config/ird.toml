@@ -32,7 +32,11 @@ window_months = 12                        # current window, both modes
 baseline_months = 36
 
 [engine]
-alpha = 0.05                              # BH false discovery rate
+# Step 4 decision (sweep 2026-10-16): alpha raised to 0.10, the first lever named in 04 §3.
+# Signals at cutoff 2025 / all cutoffs, alpha 0.05 → 0.10 (effect floor ×1.5):
+# topics 1 → 2 / 22 → 31, subfields 1 → 2 / 9 → 13, citations 209 → 290 / 1,536 → 2,181,
+# institutions 25 → 35 / 187 → 250, countries 1 → 2 / 11 → 19. A ×1.33 floor adds 0–4 signals: kept at ×1.5.
+alpha = 0.10                              # BH false discovery rate
 min_log2_ratio = 0.585                    # |share ratio| ≥ 1.5
 
 [detectors.topics]
