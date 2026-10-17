@@ -4,17 +4,31 @@ version = "0.1.0"
 description = "Delta Radar: sweep an institution's OpenAlex output, detect significant changes, map them"
 requires-python = ">=3.11"
 dependencies = [
+    "bertopic>=0.17",
+    "hdbscan>=0.8.40",
     "httpx>=0.27",
     "numpy>=1.26",
     "openalex-api-client[tables] @ git+https://github.com/gegedenice/openalex-api-client@v1.0.1",
     "pandas>=2.1",
     "pyarrow>=14",
+    "pyyaml>=6",
+    "safetensors>=0.4",
+    "scikit-learn>=1.5",
     "scipy>=1.11",
     "typer>=0.12",
+    "umap-learn>=0.5.7",
 ]
 
 [project.scripts]
 radar = "radar.cli:app"
+
+[tool.uv]
+# BERTopic declares sentence-transformers (and so torch, several GB) but never uses them when it
+# is given precomputed embeddings, which is always the case here (Albert, specs/05 §3).
+override-dependencies = [
+    "sentence-transformers; sys_platform == 'never'",
+    "torch; sys_platform == 'never'",
+]
 
 [dependency-groups]
 dev = ["pytest>=8"]

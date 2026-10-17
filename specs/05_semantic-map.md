@@ -47,7 +47,7 @@ hdbscan_m = HDBSCAN(min_cluster_size=cfg.min_cluster_size,   # default 60
                     min_samples=10, metric="euclidean",
                     cluster_selection_method="eom", prediction_data=True)
 vectorizer = CountVectorizer(stop_words=STOPWORDS, ngram_range=(1, 2),
-                             min_df=5, max_df=0.5, token_pattern=r"(?u)\b[^\W\d_]{3,}\b")
+                             min_df=1, max_df=0.5, token_pattern=r"(?u)\b[^\W\d_]{3,}\b")
 model = BERTopic(embedding_model=None, umap_model=umap_5d, hdbscan_model=hdbscan_m,
                  vectorizer_model=vectorizer,
                  ctfidf_model=ClassTfidfTransformer(reduce_frequent_words=True),
@@ -55,14 +55,17 @@ model = BERTopic(embedding_model=None, umap_model=umap_5d, hdbscan_model=hdbscan
 topics, _ = model.fit_transform(docs, embeddings=vectors)
 ```
 
+- **Document frequencies count clusters** (correction of October 2026): BERTopic fits the vectorizer on one concatenated document per cluster, so `min_df`/`max_df` count clusters, not works. The original `min_df=5` would drop every term found in fewer than 5 clusters, i.e. the most distinctive ones, and fails outright with few clusters; `min_df=1` keeps them, `max_df=0.5` still drops terms present in more than half of the clusters.
+- **Install note:** BERTopic declares `sentence-transformers` (and so PyTorch) as a dependency but never uses it when given precomputed embeddings. The project excludes both with a uv `override-dependencies` entry, which keeps the install light.
 - `STOPWORDS` = English + French + Spanish + Portuguese lists stored as text files in `semantic/stopwords/` (IRD publishes in all four), plus `semantic.extra_stopwords` from config for generic academic words (`study`, `results`, `using`, `based`, `analysis`, `data`, `paper`, `approach`, `effect`, `effects`, …).
 - **Outliers:** HDBSCAN leaves many works unassigned (`-1`). Keep the raw assignment as `cluster_raw`. Then compute `cluster = model.reduce_outliers(docs, topics, strategy="embeddings", embeddings=vectors, threshold=0.5)` and `model.update_topics(docs, topics=cluster, vectorizer_model=vectorizer)` so labels reflect the final membership. Works still unassigned stay `-1` and are drawn grey. Report the outlier share before and after.
 - **Labels:** `terms` = top 10 c-TF-IDF terms; `label` = top 3 joined with " · ".
 - Expect roughly 100–250 clusters for 70–80k works with `min_cluster_size = 60`. Adjust `min_cluster_size` rather than forcing `nr_topics`.
 
-### 4.2 Map coordinates
+### 4.2 Map coordinates (2-D and 3-D)
 
-`UMAP(n_neighbors=15, n_components=2, min_dist=0.1, metric="cosine", random_state=42)` fitted on the same vectors. Rescale x and y to [0, 1] for the bundle.
+- **2-D:** `UMAP(n_neighbors=15, n_components=2, min_dist=0.1, metric="cosine", random_state=42)` fitted on the same vectors. Rescale x and y to [0, 1] for the bundle.
+- **3-D** (amendment of October 2026, so the user can choose a 2-D or a 3-D map): the same UMAP with `n_components=3`, fitted separately on the same vectors → `x3, y3, z3`. Rescaled with **one** factor for the three axes (the largest range maps to [0, 1], the others stay proportional and centred in [0, 1]) so the 3-D shape is not distorted. The 3-D layout is not a rotation of the 2-D one: the UI never mixes the two (a point's 2-D and 3-D positions are independent). Clusters and regions are the same in both views (they come from the 5-d clustering, §4.1).
 
 ### 4.3 Regions (coarse level, for zoomed-out labels)
 
@@ -81,17 +84,17 @@ For each cluster: the 3 most frequent primary topics and subfields with their sh
 
 ### 4.6 Model persistence
 
-Save the BERTopic model (`model.save(path, serialization="safetensors", save_ctfidf=True)`) and the 2-d UMAP reducer (pickle) under `derived/semantic_model/`. They are refitted at each sweep (v1). Projecting a new sweep onto a previous map is out of scope.
+Save the BERTopic model (`model.save(path, serialization="safetensors", save_ctfidf=True)`) and the 2-d and 3-d UMAP reducers (pickle) under `derived/semantic_model/`. They are refitted at each sweep (v1). Projecting a new sweep onto a previous map is out of scope.
 
 ## 5. Outputs
 
 **`derived/map_points.parquet`** — one row per work that has a non-empty `text_for_embedding` (works with neither title nor abstract are not mapped; their number is in `semantic_meta.json`):
-`work_id, x, y, cluster, cluster_raw, region_id, year, pub_month, has_abstract, primary_topic_id, subfield_id`.
+`work_id, x, y, x3, y3, z3, cluster, cluster_raw, region_id, year, pub_month, has_abstract, primary_topic_id, subfield_id`.
 
 **`derived/clusters.parquet`** — one row per cluster (including `-1`):
-`cluster, region_id, label, terms (list), size, x, y` (median of member coordinates, for label placement)`, counts_by_year (dict), top_topics (list of {id, label, share}), trend (dict cutoff → {label, log2_sr, ci_low, ci_high, q})`.
+`cluster, region_id, label, terms (list), size, x, y, x3, y3, z3` (medians of member coordinates, for label placement)`, counts_by_year, top_topics (list of {id, label, share}), top_subfields (same), trend (cutoff → {label, log2_sr, ci_low, ci_high, q})`. `counts_by_year` and `trend` are stored as JSON strings (their keys vary).
 
-**`derived/regions.parquet`** — `region_id, label, terms, size, x, y`.
+**`derived/regions.parquet`** — `region_id, label, terms, size, x, y, x3, y3, z3`.
 
 **`derived/semantic_meta.json`** — resolved model ID, embedding dimension, number embedded vs cached, tokens/cost, outlier share before/after reduction, number of clusters and regions, parameters, runtime.
 
@@ -106,7 +109,7 @@ Save the BERTopic model (`model.save(path, serialization="safetensors", save_ctf
 
 ```
 radar embed [--sweep latest|<id>]   # network: Albert; idempotent thanks to the cache
-radar map   [--sweep latest|<id>]   # offline; ≈ 10–25 min CPU for 70–80k works (UMAP dominates)
+radar map   [--sweep latest|<id>]   # offline; ≈ 15–35 min CPU for 70–80k works (three UMAPs dominate)
 ```
 
 ## 8. Tests
@@ -115,3 +118,4 @@ radar map   [--sweep latest|<id>]   # offline; ≈ 10–25 min CPU for 70–80k 
 - Model resolution: configured ID present → OK; absent → error listing available embedding models.
 - Landscape on synthetic data (fake vectors = 5 well-separated Gaussian blobs of 300 points, docs with blob-specific vocabulary): 5 clusters recovered, labels contain the blob vocabulary, coordinates in [0, 1], `counts_by_year` sums to the number of points.
 - Determinism: two runs with the same seed give identical cluster assignments on the synthetic data.
+- 3-D coordinates: `x3, y3, z3` within [0, 1], the largest axis spanning exactly [0, 1].
