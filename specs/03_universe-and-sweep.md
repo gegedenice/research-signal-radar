@@ -35,6 +35,7 @@ min_log2_ratio = 0.585                    # |share ratio| ≥ 1.5
 
 [detectors.topics]
 levels = ["topic", "subfield"]
+counting = "all"                          # "all" (up to 3 topics per work) | "primary" — see 04 §4.1
 min_support = 10                          # current + baseline works
 
 [detectors.citations]

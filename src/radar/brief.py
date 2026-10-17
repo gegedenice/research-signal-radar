@@ -102,6 +102,8 @@ def make_brief(sweep_dir: Path, config: Config) -> str:
         f"- False discoveries: Benjamini–Hochberg q ≤ {e.alpha} within each detector × level × cutoff.",
         f"- Effect-size floor: share ratio ≥ ×{2 ** e.min_log2_ratio:.2g} or ≤ ÷{2 ** e.min_log2_ratio:.2g}; "
         "ranked by the confidence bound closest to zero.",
+        ("- Topics: each work counts for each of its OpenAlex topics (up to 3; shares are of works)."
+         if config.detectors.topics.counting == "all" else "- Topics: each work counts for its primary topic only."),
         "- Limits: topics come from the OpenAlex classifier; citations use today's counts_by_year "
         "(past cutoffs are reconstructions); collaborations depend on affiliation disambiguation.",
         "",
