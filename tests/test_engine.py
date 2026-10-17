@@ -186,3 +186,11 @@ def test_baseline_is_36_months_just_before_current(mode):
         assert len(c.current) == 12 and len(c.baseline) == 36
         assert c.baseline.stop == c.current.start and c.current.stop == c.month + 1
         assert windows(c.month) == (c.current, c.baseline)
+
+
+def test_empty_denominator_does_not_poison_bh():
+    df = pd.concat([rows((25, 30), (6, 0)), rows((7, 2), C=0, B=0).assign(entity_id="Z")], ignore_index=True)
+    out = assess(df, **PARAMS).set_index("entity_id")
+    assert out["q"].notna().all() and out["p"].notna().all()
+    assert out.loc["Z", "p"] == 1.0 and not out.loc["Z", "is_signal"]
+    assert out.loc["E0", "is_signal"] and out.loc["E1", "is_signal"]

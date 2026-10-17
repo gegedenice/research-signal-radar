@@ -183,3 +183,10 @@ def test_detect_writes_documented_outputs(config):
     brief = write_brief(sweep, config).read_text()
     assert "cutoff **2025**" in brief and "Topic T2: 20 of 40" in brief
     assert "https://openalex.org/I55" in brief and "## Method" in brief
+
+
+def test_citation_rows_without_cohort_reference_are_not_tested(config):
+    from radar.detectors import plan
+    supported = dict((name, f) for name, _, _, _, _, f in plan(config))["citations"]
+    frame = pd.DataFrame({"c": [10, 10, 10, 2], "C": [5, 0, 5, 5], "B": [5, 5, 0, 5]})
+    assert list(supported(frame)) == [True, False, False, False]

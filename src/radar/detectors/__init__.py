@@ -63,7 +63,8 @@ def plan(config: Config):
         ("topics", topics, d.topics, d.topics.levels, {"up", "down"},
          lambda f: (f.c + f.b) >= d.topics.min_support),
         ("citations", citations, d.citations, ["work"], set(d.citations.directions),
-         lambda f: f.c >= d.citations.min_current),
+         # A cohort with no other citations in either window gives no reference share.
+         lambda f: (f.c >= d.citations.min_current) & (f.C > 0) & (f.B > 0)),
         ("collaborations", collaborations, d.collaborations, d.collaborations.levels, {"up", "down"},
          lambda f: (f.c + f.b) >= d.collaborations.min_support),
     ]
