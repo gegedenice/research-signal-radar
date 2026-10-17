@@ -64,6 +64,8 @@ exclude_countries = []                    # e.g. ["FR"] to hide domestic partner
 
 [semantic]
 base_url = "https://albert.api.etalab.gouv.fr/v1"
+# Step 5 (2026-10-17): "BAAI/bge-m3" resolves on Albert to model id "bge-m3" (1,024 dims, 8,192 tokens).
+# First run: 77,831 works, 77,622 distinct texts (17,519 title-only), 18.8M tokens, cost 0, 427 s.
 model = "BAAI/bge-m3"
 api_key_env = "ALBERT_API_KEY"
 batch_size = 64
