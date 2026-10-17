@@ -47,6 +47,7 @@ class Engine:
 @dataclass(frozen=True)
 class Topics:
     levels: list[str] = field(default_factory=lambda: ["topic", "subfield"])
+    counting: str = "all"
     min_support: int = 10
 
 
@@ -159,6 +160,8 @@ def parse_config(table: dict) -> Config:
         )
     if config.periods.mode not in {"year", "semester"}:
         raise ConfigError("periods.mode must be 'year' or 'semester'")
+    if config.detectors.topics.counting not in {"all", "primary"}:
+        raise ConfigError("detectors.topics.counting must be 'all' or 'primary'")
     return config
 
 

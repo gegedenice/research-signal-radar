@@ -135,11 +135,16 @@ and the orchestrator (`radar detect`) loops over detectors × levels × cutoffs,
 
 ### 4.1 Topics (`detectors/topics.py`)
 
-- **Entity:** the work's primary topic (`level = "topic"`) or its subfield (`level = "subfield"`). The two levels are independent views; no rule links them. The topic level carries `parent_id/parent_label` = its subfield for display.
-- **Count:** number of works with that primary topic/subfield in the window (each work counts once, full counting).
-- **Denominator:** works in the window with a non-null primary topic.
+- **Entity:** an OpenAlex topic (`level = "topic"`) or subfield (`level = "subfield"`). The two levels are independent views; no rule links them. The topic level carries `parent_id/parent_label` = its subfield for display.
+- **Counting** (`counting`, amendment of October 2026, see below):
+  - `"all"` (default): a work counts for **each of its topics** (OpenAlex assigns up to 3: the primary topic and two secondary ones), and at subfield level for each distinct subfield among them. A work counts at most once per entity.
+  - `"primary"`: a work counts only for its primary topic and the primary topic's subfield (the original rule).
+- **Count:** number of distinct works with that topic/subfield in the window.
+- **Denominator:** works in the window with at least one topic (in practice, a non-null primary topic). It stays a number of **works**, not of topic assignments, so a share still reads "x% of the institution's works touch this topic". In `"all"` mode shares across entities sum to more than 100%; this does not affect the test, which looks at one entity at a time and counts each work once for it.
 - **Tested if:** `c + b ≥ min_support` (default 10).
-- **Evidence:** `work_ids_current`; `top_work_ids` = up to 10 by `cited_by_count`.
+- **Evidence:** `work_ids_current`; `top_work_ids` = up to 10 by `cited_by_count`; `extra.counting`; `extra.primary_share` = share of the current works for which the entity is the primary topic (or the primary topic's subfield), so a reader can tell a core theme from a secondary one.
+
+**Why the amendment.** With primary-topic counting, the IRD sweep (77,831 works, ≈ 7,450 per year over ≈ 2,900 topics) gave a topic level where almost no entity reaches the ≈ 30 baseline works per entity needed to detect a ×3 change (power table, §3): 515 topics tested and 1–2 signals at the 2025 cutoff. Counting the three topics multiplies the evidence per topic by up to 3 without changing the test, and matters even more for smaller institutions. The secondary topics come from the same OpenAlex classifier, with lower scores: the classifier caveat of 01 §7 applies a fortiori, and `extra.primary_share` keeps it visible.
 
 ### 4.2 Citations (`detectors/citations.py`)
 
@@ -215,3 +220,4 @@ radar brief  [--sweep latest|<id>]
 8. `windows()`: year mode gives cutoffs 2019…2025 for 2016–2025 data; semester mode gives 13 cutoffs; each `-H2` window equals the year-mode window; baseline always 36 months, ending just before the current window.
 9. Citations run only at year-end cutoffs; a cutoff whose baseline years fall outside the measured `counts_by_year` coverage is skipped and reported.
 10. `detect` on a small fixture sweep produces the three files with the documented columns.
+11. Topics counting: in `"all"` mode a work with three topics counts once for each of them (and once per distinct subfield), the denominator counts works not assignments, and `extra.primary_share` is right; `"primary"` mode reproduces the original rule.

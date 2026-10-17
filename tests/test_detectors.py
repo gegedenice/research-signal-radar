@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from openalex_api_client import OpenAlex
-from radar.config import Citations, Collaborations
+from radar.config import Citations, Collaborations, Topics
 from radar.detectors import ASSESSMENT_COLUMNS, SIGNAL_EXTRA_COLUMNS, citations, collaborations, run_detect, topics
 from radar.detectors.common import SweepTables
 from radar.engine import cutoffs, windows, Cutoff
@@ -25,7 +25,7 @@ def work(wid, year, month=6, field="F1", domain="D1", n_authors=3, topic="T1", s
             "subfield": f"Subfield {subfield}", "cited_by_count": 0}
 
 
-def tables(works, authorships=None, cby=None, coverage=(2012, 2026)):
+def tables(works, authorships=None, cby=None, coverage=(2012, 2026), topic_rows=None):
     auth_cols = ["work_id", "author_position_idx", "institution_id", "institution_name", "institution_country",
                  "institution_type", "institution_ror", "is_anchor"]
     return SweepTables(
@@ -33,6 +33,8 @@ def tables(works, authorships=None, cby=None, coverage=(2012, 2026)):
         authorships=pd.DataFrame(authorships or [], columns=auth_cols),
         counts_by_year=pd.DataFrame(cby or [], columns=["work_id", "year", "cited_by_count"]),
         first_year=2016, last_year=2025, citation_coverage=coverage,
+        topics=pd.DataFrame(topic_rows or [], columns=["work_id", "rank", "topic_id", "topic", "score",
+                                                       "subfield_id", "field_id", "domain_id"]),
     )
 
 
@@ -116,12 +118,12 @@ def test_topics_counts_denominator_and_history():
     works = ([work(f"A{i}", 2025, topic="T1") for i in range(3)] + [work("B0", 2023, topic="T1")]
              + [work("C0", 2017, topic="T2"), work("D0", 2025, topic="T3", subfield="S2")]
              + [{**work("E0", 2025), "primary_topic_id": None, "subfield_id": None}])
-    out = topics.build(tables(works), None, CUT_2025, "topic").set_index("entity_id")
+    out = topics.build(tables(works), Topics(counting="primary"), CUT_2025, "topic").set_index("entity_id")
     assert (out.loc["T1", "c"], out.loc["T1", "b"], out.loc["T1", "C"], out.loc["T1", "B"]) == (3, 1, 4, 1)
     assert out.loc["T2", "history_before"] == 1 and out.loc["T1", "parent_id"] == "S1"
     series = {p["period"]: (p["n"], p["den"]) for p in out.loc["T1", "series"]}
     assert series[2025] == (3, 4) and series[2016] == (0, 0)
-    sub = topics.build(tables(works), None, CUT_2025, "subfield").set_index("entity_id")
+    sub = topics.build(tables(works), Topics(counting="primary"), CUT_2025, "subfield").set_index("entity_id")
     assert sub.loc["S1", "c"] == 3 and sub.loc["S2", "c"] == 1
 
 
@@ -190,3 +192,41 @@ def test_citation_rows_without_cohort_reference_are_not_tested(config):
     supported = dict((name, f) for name, _, _, _, _, f in plan(config))["citations"]
     frame = pd.DataFrame({"c": [10, 10, 10, 2], "C": [5, 0, 5, 5], "B": [5, 5, 0, 5]})
     assert list(supported(frame)) == [True, False, False, False]
+
+
+# 11. topics counting amendment ----------------------------------------------------------
+
+
+def test_topics_all_counting_counts_each_topic_once_per_work():
+    works = [work("W1", 2025, topic="T1", subfield="S1"), work("W2", 2025, topic="T2", subfield="S2"),
+             work("W3", 2023, topic="T1", subfield="S1")]
+    topic_rows = [
+        ("W1", 1, "T1", "Topic T1", 0.9, "S1", "F1", "D1"), ("W1", 2, "T2", "Topic T2", 0.5, "S2", "F1", "D1"),
+        ("W1", 3, "T3", "Topic T3", 0.2, "S2", "F1", "D1"),  # T3 never primary; S2 twice for W1
+        ("W2", 1, "T2", "Topic T2", 0.8, "S2", "F1", "D1"),
+        ("W3", 1, "T1", "Topic T1", 0.9, "S1", "F1", "D1"), ("W3", 2, "T3", "Topic T3", 0.4, "S2", "F1", "D1"),
+    ]
+    rows = [dict(zip(["work_id", "rank", "topic_id", "topic", "score", "subfield_id", "field_id", "domain_id"], r))
+            for r in topic_rows]
+    t = tables(works, topic_rows=rows)
+    out = topics.build(t, Topics(counting="all"), CUT_2025, "topic").set_index("entity_id")
+    assert out.loc["T2", "c"] == 2 and out.loc["T2", "work_ids_current"] == ["W1", "W2"]
+    assert (out.loc["T3", "c"], out.loc["T3", "b"]) == (1, 1)
+    assert out.loc["T3", "entity_label"] == "Topic T3" and out.loc["T3", "parent_id"] == "S2"
+    assert set(out["C"]) == {2} and set(out["B"]) == {1}  # works, not topic assignments
+    assert out.loc["T2", "extra"] == {"counting": "all", "primary_share": 0.5}
+    assert out.loc["T3", "extra"]["primary_share"] == 0.0
+
+    sub = topics.build(t, Topics(counting="all"), CUT_2025, "subfield").set_index("entity_id")
+    assert sub.loc["S2", "c"] == 2  # W1 counted once although two of its topics are in S2
+    assert sub.loc["S1", "c"] == 1
+
+    primary = topics.build(t, Topics(counting="primary"), CUT_2025, "topic").set_index("entity_id")
+    assert "T3" not in primary.index and primary.loc["T2", "c"] == 1
+
+
+def test_counting_must_be_valid(config_table):
+    from radar.config import ConfigError, parse_config
+    config_table["detectors"]["topics"]["counting"] = "weighted"
+    with pytest.raises(ConfigError, match="counting"):
+        parse_config(config_table)

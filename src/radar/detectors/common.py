@@ -23,6 +23,7 @@ class SweepTables:
     first_year: int
     last_year: int
     citation_coverage: tuple[int | None, int | None] = (None, None)
+    topics: pd.DataFrame | None = None  # work × topic (up to 3), for topics counting = "all"
     cache: dict = field(default_factory=dict)  # per-level values that do not depend on the cutoff
 
     @property
@@ -42,6 +43,7 @@ class SweepTables:
             first_year=first_year,
             last_year=last_year,
             citation_coverage=(coverage.get("earliest_year"), coverage.get("latest_year")),
+            topics=pd.read_parquet(sweep_dir / "topics.parquet"),
         )
 
 
