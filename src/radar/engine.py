@@ -80,20 +80,26 @@ def assess(df: pd.DataFrame, *, alpha: float, min_log2_ratio: float,
     B = out["B"].to_numpy(dtype=float)
     hist = out["history_before"].to_numpy(dtype=float)
 
-    out["share_c"] = c / C
-    out["share_b"] = b / B
+    with np.errstate(invalid="ignore", divide="ignore"):
+        out["share_c"] = c / C
+        out["share_b"] = b / B
 
     # Exact conditional test: given n = c + b, c ~ Binomial(n, C / (C + B)) under no change.
     n = c + b
-    p0 = C / (C + B)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        p0 = C / (C + B)
     lower = binom.cdf(c, n, p0)
     upper = binom.sf(c - 1, n, p0)
-    p = np.minimum(1.0, 2 * np.minimum(lower, upper))
-    p[n == 0] = 1.0
+    with np.errstate(invalid="ignore", divide="ignore"):
+        p = np.minimum(1.0, 2 * np.minimum(lower, upper))
+    # No information (no works, or an empty denominator): never a signal, and never a NaN
+    # that would poison the BH adjustment of every other row.
+    p[(n == 0) | ~np.isfinite(p)] = 1.0
     out["p"] = p
 
     # Share ratio with +0.5 continuity correction, CI on the log scale.
-    ln_sr = np.log(((c + 0.5) / C) / ((b + 0.5) / B))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        ln_sr = np.log(((c + 0.5) / C) / ((b + 0.5) / B))
     half = Z95 * np.sqrt(1 / (c + 0.5) + 1 / (b + 0.5))
     out["log2_sr"] = ln_sr / np.log(2)
     out["ci_low"] = (ln_sr - half) / np.log(2)
@@ -102,8 +108,9 @@ def assess(df: pd.DataFrame, *, alpha: float, min_log2_ratio: float,
     out["q"] = bh(p)
 
     up = out["log2_sr"].to_numpy() > 0
+    finite = np.isfinite(out["log2_sr"].to_numpy())
     allowed = np.where(up, "up" in directions, "down" in directions)
-    is_signal = (out["q"].to_numpy() <= alpha) & (np.abs(out["log2_sr"].to_numpy()) >= min_log2_ratio) & allowed
+    is_signal = (out["q"].to_numpy() <= alpha) & (np.abs(out["log2_sr"].to_numpy()) >= min_log2_ratio) & allowed & finite
     out["is_signal"] = is_signal
 
     label = np.select(
