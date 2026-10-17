@@ -20,7 +20,7 @@ def test_loads_the_ird_config():
 
 def test_hash_changes_with_parameters(config_table):
     other = copy.deepcopy(config_table)
-    other["engine"]["alpha"] = 0.1
+    other["engine"]["alpha"] = config_table["engine"]["alpha"] / 2
     assert parse_config(config_table).config_hash != parse_config(other).config_hash
 
 
