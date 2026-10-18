@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
 import type { Bundle, Points, Works } from "./types";
 import { loadCore, loadWorks } from "./logic/load";
-import { fromHash, initialState, makeReducer, toHash, type State } from "./logic/state";
+import { fromHash, initialState, makeReducer, toHash } from "./logic/state";
 import { Header } from "./components/Header";
 import { TimeBar, stepCounts } from "./components/TimeBar";
 import { MapView } from "./components/MapView";
 import { Feed } from "./components/Feed";
+import { Detail } from "./components/Detail";
 import { cutoffAt } from "./logic/feed";
 import { S } from "./strings";
 
@@ -63,13 +64,8 @@ function Radar({ bundle, points, works }: { bundle: Bundle; points: Points; work
             selectedIdx={selectedIdx} previewIdx={previewIdx} />
           <TimeBar bundle={bundle} state={state} dispatch={dispatch} counts={counts} />
         </main>
-        <Detail state={state} />
+        <Detail bundle={bundle} points={points} works={works} state={state} dispatch={dispatch} cutoff={cutoff} signalById={signalById} />
       </div>
     </div>
   );
-}
-
-function Detail({ state }: { state: State }) {
-  if (!state.selection) return null;
-  return <aside className="detail">{JSON.stringify(state.selection)}</aside>;
 }
