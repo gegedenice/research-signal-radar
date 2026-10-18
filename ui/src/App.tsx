@@ -5,6 +5,7 @@ import { fromHash, initialState, makeReducer, toHash, type State } from "./logic
 import { Header } from "./components/Header";
 import { TimeBar, stepCounts } from "./components/TimeBar";
 import { MapView } from "./components/MapView";
+import { Feed } from "./components/Feed";
 import { cutoffAt } from "./logic/feed";
 import { S } from "./strings";
 
@@ -56,7 +57,7 @@ function Radar({ bundle, points, works }: { bundle: Bundle; points: Points; work
     <div className="app">
       <Header bundle={bundle} state={state} dispatch={dispatch} theme={theme} setTheme={setTheme} />
       <div className="body">
-        <aside className="feed"><div className="placeholder">Signal feed</div></aside>
+        <Feed bundle={bundle} state={state} dispatch={dispatch} cutoff={cutoff} />
         <main className="center">
           <MapView bundle={bundle} points={points} works={works} state={state} dispatch={dispatch} cutoff={cutoff}
             selectedIdx={selectedIdx} previewIdx={previewIdx} />
