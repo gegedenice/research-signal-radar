@@ -70,6 +70,9 @@ model = "BAAI/bge-m3"
 api_key_env = "ALBERT_API_KEY"
 batch_size = 64
 max_chars = 4000
+# Step 6 (2026-10-18, sweep 2026-10-16): 184 clusters (median 308 works, 67–2,293), 20 regions;
+# outliers 47.3% before reduction, 0.1% after; largest cluster 2.9%; median top-1 OpenAlex topic
+# share 0.32; 11 clusters > 50% title-only; 567 s on a laptop. Kept min_cluster_size 60, n_regions 20.
 min_cluster_size = 60
 n_regions = 20
 extra_stopwords = ["study", "results", "using", "based", "analysis", "data", "paper", "approach", "effect", "effects"]

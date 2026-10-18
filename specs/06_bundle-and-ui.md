@@ -28,7 +28,7 @@ Counts in the examples below are illustrative.
 
 ### 2.1 `points.json` — the map, columnar
 
-> **Amendment (October 2026, 3-D map):** `points.json` also carries `x3`, `y3`, `z3` (quantized like `x`, `y`), and clusters/regions carry their 3-D label positions. The map offers a **2-D / 3-D toggle**: 2-D uses `OrthographicView` as below; 3-D uses deck.gl `OrbitView` with the same layers and filters on `(x3, y3, z3)`. Everything else (colours, filters, selection, time bar) is identical in both views. Spec 05 §4.2 explains why the two layouts are independent.
+> **Amendment (October 2026, 3-D map):** `points.json` also carries `x3`, `y3`, `z3` (quantized like `x`, `y`), and clusters/regions carry their 3-D label positions. The map offers a **2-D / 3-D toggle**: 2-D uses `OrthographicView` as below; 3-D uses deck.gl `OrbitView` with the same layers and filters on `(x3, y3, z3)`. Everything else (colours, filters, selection, time bar) is identical in both views. Spec 05 §4.2 explains why the two layouts are independent. With the three extra columns the target for `points.json` becomes < 5 MB (measured: 3.9 MB for 78,000 works).
 
 ```json
 {"n": 75000,
