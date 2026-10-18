@@ -128,7 +128,7 @@ def _signals(signals: pd.DataFrame, point_of: dict, cluster_of: np.ndarray) -> l
             "c": int(s.c), "b": int(s.b), "C": int(s.C), "B": int(s.B),
             "share_c": _sig(s.share_c, 5), "share_b": _sig(s.share_b, 5),
             "log2_sr": _num(s.log2_sr, 4), "ci_low": _num(s.ci_low, 4), "ci_high": _num(s.ci_high, 4),
-            "q": _sig(s.q), "rank": _num(s.rank, 4),
+            "p": _sig(s.p), "q": _sig(s.q), "rank": _num(s.rank, 4),
             "why": s.why,
             "series": _plain(list(s.series)),
             "work_idx": idx,

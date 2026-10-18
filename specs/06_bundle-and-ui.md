@@ -75,7 +75,7 @@ Point index `i` is the row order of `map_points.parquet` sorted by `work_id`. Ev
  "entity": {"id": "T10101", "label": "...", "parent_label": "..."},
  "label": "RISING", "returning": false,
  "c": 25, "b": 30, "C": 8500, "B": 24000, "share_c": 0.00294, "share_b": 0.00125,
- "log2_sr": 1.239, "ci_low": 0.48, "ci_high": 1.998, "q": 0.012, "rank": 0.48,
+ "log2_sr": 1.239, "ci_low": 0.48, "ci_high": 1.998, "p": 0.0031, "q": 0.012, "rank": 0.48,
  "why": "...",
  "series": [{"period": 2016, "n": 9, "den": 6100}, ...],
  "work_idx": [102, 5531, ...],            // works of the current window, as point indices

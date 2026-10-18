@@ -4,7 +4,7 @@ export function signal(partial: Partial<Signal> & { id: string }): Signal {
   return {
     detector: "topics", level: "topic", cutoff: "2025", label: "RISING", returning: false,
     entity: { id: partial.id, label: partial.id, parent_id: null, parent_label: null },
-    c: 10, b: 5, C: 100, B: 300, share_c: 0.1, share_b: 0.0167, log2_sr: 2, ci_low: 1, ci_high: 3, q: 0.01,
+    c: 10, b: 5, C: 100, B: 300, share_c: 0.1, share_b: 0.0167, log2_sr: 2, ci_low: 1, ci_high: 3, p: 0.001, q: 0.01,
     rank: 1, why: "", series: [], work_idx: [0, 1], n_unmapped: 0, top_work_idx: [0], clusters: [], extra: {},
     ...partial,
   };

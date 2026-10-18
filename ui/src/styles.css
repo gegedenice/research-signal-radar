@@ -72,3 +72,19 @@ button.active .count { color: #fff; opacity: .85; }
 .num-line { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); }
 .badge { font-size: 11px; border: 1px solid; border-radius: 10px; padding: 0 7px; font-weight: 600; white-space: nowrap; }
 .sparkline { flex: none; }
+.detail h2 { font-size: 16px; margin: 6px 0 2px; }
+.detail h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 16px 0 6px; }
+.detail-head { display: flex; justify-content: space-between; align-items: center; }
+.close { padding: 0 6px; }
+.why { background: var(--panel-2); border-left: 3px solid var(--accent); padding: 8px 10px; margin: 10px 0; }
+.notice { background: color-mix(in srgb, var(--falling) 15%, var(--panel-2)); padding: 6px 8px; border-radius: 4px; }
+.chart { margin: 0; }
+.chart figcaption { margin-top: 2px; }
+ul.plain { list-style: none; padding: 0; margin: 4px 0 8px; }
+ul.plain li { padding: 2px 0; display: flex; justify-content: space-between; gap: 8px; }
+ol.works { padding-left: 18px; margin: 4px 0 8px; }
+ol.works li { margin-bottom: 6px; }
+.computed { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 8px; }
+.computed summary { cursor: pointer; color: var(--muted); }
+table.kv { border-collapse: collapse; margin: 8px 0; width: 100%; }
+table.kv td { padding: 2px 6px; border-bottom: 1px solid var(--border); }

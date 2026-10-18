@@ -52,6 +52,7 @@ export interface Signal {
   log2_sr: number;
   ci_low: number;
   ci_high: number;
+  p: number;
   q: number;
   rank: number;
   why: string;
