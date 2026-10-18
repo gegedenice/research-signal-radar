@@ -88,5 +88,20 @@ def embed(sweep: str = typer.Option("latest", help="latest or a sweep id"), conf
                f"in {meta['seconds']} s")
 
 
+@app.command("map")
+def map_(sweep: str = typer.Option("latest", help="latest or a sweep id"), config: Path = CONFIG):
+    """Clusters, 2-D and 3-D map coordinates, regions and cluster trends (offline, CPU-heavy)."""
+    from .semantic.landscape import run_map
+
+    cfg = load_config(config)
+    meta = run_map(_sweep_dir(cfg, sweep), cfg)
+    typer.echo(f"{meta['points']} points, {meta['clusters']} clusters, {meta['regions']} regions; "
+               f"outliers {meta['outlier_share_before']:.1%} -> {meta['outlier_share_after']:.1%}; "
+               f"largest cluster {meta['largest_cluster_share']:.1%}; "
+               f"median top-1 topic share {meta['median_top1_topic_share']} in {meta['seconds']} s")
+    for warning in meta["warnings"]:
+        typer.echo(f"warning: {warning}")
+
+
 if __name__ == "__main__":
     app()
