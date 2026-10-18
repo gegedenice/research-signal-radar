@@ -4,6 +4,8 @@ import { loadCore, loadWorks } from "./logic/load";
 import { fromHash, initialState, makeReducer, toHash, type State } from "./logic/state";
 import { Header } from "./components/Header";
 import { TimeBar, stepCounts } from "./components/TimeBar";
+import { MapView } from "./components/MapView";
+import { cutoffAt } from "./logic/feed";
 import { S } from "./strings";
 
 export default function App() {
@@ -29,6 +31,19 @@ function Radar({ bundle, points, works }: { bundle: Bundle; points: Points; work
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? "dark");
   const counts = useMemo(() => stepCounts(bundle, points.pub_month), [bundle, points]);
 
+  const cutoff = cutoffAt(bundle, state.step);
+  const signalById = useMemo(() => new Map(bundle.signals.map((s) => [s.id, s])), [bundle]);
+  const selectedIdx = useMemo(() => {
+    const sel = state.selection;
+    if (!sel) return null;
+    if (sel.kind === "signal") return signalById.get(sel.id)?.work_idx ?? null;
+    if (sel.kind === "work") return [sel.idx];
+    const idx: number[] = [];
+    points.cluster.forEach((c, i) => c === sel.id && idx.push(i));
+    return idx;
+  }, [state.selection, signalById, points]);
+  const previewIdx = state.hoverSignal ? signalById.get(state.hoverSignal)?.work_idx ?? null : null;
+
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
@@ -43,7 +58,8 @@ function Radar({ bundle, points, works }: { bundle: Bundle; points: Points; work
       <div className="body">
         <aside className="feed"><div className="placeholder">Signal feed</div></aside>
         <main className="center">
-          <div className="mapwrap"><div className="placeholder">Map — {points.n} points{works ? "" : ` · ${S.loadingWorks}`}</div></div>
+          <MapView bundle={bundle} points={points} works={works} state={state} dispatch={dispatch} cutoff={cutoff}
+            selectedIdx={selectedIdx} previewIdx={previewIdx} />
           <TimeBar bundle={bundle} state={state} dispatch={dispatch} counts={counts} />
         </main>
         <Detail state={state} />

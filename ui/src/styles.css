@@ -47,3 +47,9 @@ a { color: var(--accent); }
 .divider { width: 1px; align-self: stretch; background: var(--muted); opacity: .5; margin: 0 4px; }
 .centered { display: grid; place-items: center; height: 100%; color: var(--muted); }
 .error { color: var(--gone); }
+.map-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 2; }
+.map-legend { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  background: color-mix(in srgb, var(--panel) 85%, transparent); border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; z-index: 2; }
+.map-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.deck-tooltip { max-width: 360px; white-space: pre-line; font: 12px/1.4 system-ui, sans-serif !important; background: var(--panel) !important;
+  color: var(--text) !important; border: 1px solid var(--border); border-radius: 4px; }
