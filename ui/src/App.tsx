@@ -7,6 +7,7 @@ import { TimeBar, stepCounts } from "./components/TimeBar";
 import { MapView } from "./components/MapView";
 import { Feed } from "./components/Feed";
 import { Detail } from "./components/Detail";
+import { Overview } from "./components/Overview";
 import { cutoffAt } from "./logic/feed";
 import { S } from "./strings";
 
@@ -57,11 +58,15 @@ function Radar({ bundle, points, works }: { bundle: Bundle; points: Points; work
   return (
     <div className="app">
       <Header bundle={bundle} state={state} dispatch={dispatch} theme={theme} setTheme={setTheme} />
-      <div className="body">
-        <Feed bundle={bundle} state={state} dispatch={dispatch} cutoff={cutoff} />
+      <div className={`body${state.view === "overview" ? " body-overview" : ""}`}>
+        {state.view === "map" && <Feed bundle={bundle} state={state} dispatch={dispatch} cutoff={cutoff} />}
         <main className="center">
-          <MapView bundle={bundle} points={points} works={works} state={state} dispatch={dispatch} cutoff={cutoff}
-            selectedIdx={selectedIdx} previewIdx={previewIdx} />
+          {state.view === "map" ? (
+            <MapView bundle={bundle} points={points} works={works} state={state} dispatch={dispatch} cutoff={cutoff}
+              selectedIdx={selectedIdx} previewIdx={previewIdx} />
+          ) : (
+            <Overview bundle={bundle} works={works} state={state} dispatch={dispatch} cutoff={cutoff} />
+          )}
           <TimeBar bundle={bundle} state={state} dispatch={dispatch} counts={counts} />
         </main>
         <Detail bundle={bundle} points={points} works={works} state={state} dispatch={dispatch} cutoff={cutoff} signalById={signalById} />

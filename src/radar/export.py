@@ -153,6 +153,7 @@ def _volcano(assessments: pd.DataFrame, signal_index: dict) -> dict:
         out[key] = {
             "n_tested": tested,
             "sampled": tested > len(group),
+            "entity_id": group["entity_id"].astype(str).tolist(),
             "log2_sr": [_num(v, 4) for v in group["log2_sr"]],
             "q": [_sig(v) for v in group["q"]],
             "signal_idx": [signal_index.get(f"{detector}:{level}:{e}:{cutoff}", -1) for e in group["entity_id"]],

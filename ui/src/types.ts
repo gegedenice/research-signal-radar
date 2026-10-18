@@ -119,6 +119,7 @@ export interface DetectorSummary {
 export interface Volcano {
   n_tested: number;
   sampled: boolean;
+  entity_id: string[];
   log2_sr: (number | null)[];
   q: (number | null)[];
   signal_idx: number[];

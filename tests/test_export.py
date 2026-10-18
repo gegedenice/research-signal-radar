@@ -113,6 +113,7 @@ def test_bundle_structure(exported, config):
     key = "topics|topic|2025"
     volcano = bundle["volcano"][key]
     assert len(volcano["log2_sr"]) == len(volcano["q"]) == len(volcano["signal_idx"]) == volcano["n_tested"]
+    assert len(volcano["entity_id"]) == volcano["n_tested"]
     hit = [i for i in volcano["signal_idx"] if i >= 0]
     assert hit and all(bundle["signals"][i]["cutoff"] == "2025" for i in hit)
     assert bundle["clusters"][0]["cluster"] == -1 and isinstance(bundle["clusters"][1]["trend"], dict)

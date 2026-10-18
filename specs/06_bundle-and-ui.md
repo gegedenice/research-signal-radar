@@ -61,7 +61,7 @@ Point index `i` is the row order of `map_points.parquet` sorted by `work_id`. Ev
   "detectors": [{"key": "topics", "levels": ["topic", "subfield"],
                  "summary": {"2025": {"topic": {"seen": 0, "tested": 0, "NEW": 0, "RISING": 0, "FALLING": 0, "GONE": 0}}}}, ...],
   "signals": [ {signal}, ... ],            // all cutoffs
-  "volcano": {"topics|topic|2025": {"log2_sr": [...], "q": [...], "signal_idx": [...]}, ...},
+  "volcano": {"topics|topic|2025": {"entity_id": [...], "log2_sr": [...], "q": [...], "signal_idx": [...]}, ...},
   "clusters": [ {cluster}, ... ],
   "regions": [ {region}, ... ],
   "diff": {...} | null,
