@@ -61,7 +61,7 @@ Point index `i` is the row order of `map_points.parquet` sorted by `work_id`. Ev
   "detectors": [{"key": "topics", "levels": ["topic", "subfield"],
                  "summary": {"2025": {"topic": {"seen": 0, "tested": 0, "NEW": 0, "RISING": 0, "FALLING": 0, "GONE": 0}}}}, ...],
   "signals": [ {signal}, ... ],            // all cutoffs
-  "volcano": {"topics|topic|2025": {"log2_sr": [...], "q": [...], "signal_idx": [...]}, ...},
+  "volcano": {"topics|topic|2025": {"entity_id": [...], "log2_sr": [...], "q": [...], "signal_idx": [...]}, ...},
   "clusters": [ {cluster}, ... ],
   "regions": [ {region}, ... ],
   "diff": {...} | null,
@@ -75,7 +75,7 @@ Point index `i` is the row order of `map_points.parquet` sorted by `work_id`. Ev
  "entity": {"id": "T10101", "label": "...", "parent_label": "..."},
  "label": "RISING", "returning": false,
  "c": 25, "b": 30, "C": 8500, "B": 24000, "share_c": 0.00294, "share_b": 0.00125,
- "log2_sr": 1.239, "ci_low": 0.48, "ci_high": 1.998, "q": 0.012, "rank": 0.48,
+ "log2_sr": 1.239, "ci_low": 0.48, "ci_high": 1.998, "p": 0.0031, "q": 0.012, "rank": 0.48,
  "why": "...",
  "series": [{"period": 2016, "n": 9, "den": 6100}, ...],
  "work_idx": [102, 5531, ...],            // works of the current window, as point indices
@@ -143,6 +143,7 @@ Target sizes: `points.json` < 3 MB, `works.json` < 15 MB, `bundle.json` < 8 MB.
   - *Region*: ~20 categorical hues.
   - *Abstract*: works with or without abstract (diagnostic).
 - **Labels:** region labels when zoomed out; cluster labels above a zoom threshold; collision-avoided (TextLayer with `collisionEnabled` or simple greedy placement).
+- **Implementation note (October 2026):** the background and foreground layers are merged into one ScatterplotLayer whose alpha and radius are recomputed per time-bar step (points outside the window drawn faint), instead of two layers + `DataFilterExtension`: same picture, half the points to draw (78k instead of 156k), measured 2× faster on a software renderer. Labels use the greedy screen-space placement (biggest first), which does not depend on GPU picking.
 - **Selection:** when a signal is selected, its `work_idx` points become large and outlined, everything else dims, and a "Zoom to works" button fits the view to them. For a citation signal (one work), the point pulses and its cluster outline is shown.
 - **Hover tooltip:** title, year, cluster label, OpenAlex topic. Click a point → work detail. Click a cluster label → cluster detail.
 
