@@ -103,5 +103,19 @@ def map_(sweep: str = typer.Option("latest", help="latest or a sweep id"), confi
         typer.echo(f"warning: {warning}")
 
 
+@app.command()
+def export(sweep: str = typer.Option("latest", help="latest or a sweep id"), config: Path = CONFIG,
+           out: Path = typer.Option(Path("ui/public/data"), help="output directory for the UI bundle")):
+    """Write bundle.json, points.json and works.json for the UI."""
+    from .export import run_export
+
+    cfg = load_config(config)
+    report = run_export(_sweep_dir(cfg, sweep), cfg, out)
+    sizes = ", ".join(f"{k} {v} MB" for k, v in report["sizes_mb"].items())
+    typer.echo(f"{report['signals']} signals exported to {report['out_dir']}: {sizes}")
+    for warning in report["warnings"]:
+        typer.echo(f"warning: {warning}")
+
+
 if __name__ == "__main__":
     app()
