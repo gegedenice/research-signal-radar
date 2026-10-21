@@ -92,7 +92,9 @@ Target sizes: `points.json` < 3 MB, `works.json` < 15 MB, `bundle.json` < 8 MB.
 
 ## 3. Screens
 
-### 3.1 Layout (desktop first, ≥ 1280 px; no mobile layout in v1)
+### 3.1 Layout (desktop first, ≥ 1280 px)
+
+> **Amendment (October 2026, responsive):** CSS only, the desktop layout is unchanged. Below 1,280 px the side columns narrow; below 1,024 px the detail panel becomes a drawer over the map; below 760 px everything stacks (map and time bar first, then the feed), the detail opens full screen and the time bar stays pinned in the Overview.
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
