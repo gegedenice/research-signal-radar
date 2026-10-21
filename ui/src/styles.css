@@ -99,3 +99,54 @@ table.kv td { padding: 2px 6px; border-bottom: 1px solid var(--border); }
 table.compact td { padding: 2px 10px; }
 ol.method, ul.method { padding-left: 18px; margin: 4px 0; }
 code { font-size: 11px; word-break: break-all; }
+
+/* ---------- Responsive (the desktop layout above 1280 px is unchanged) ---------- */
+.header h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.header > .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.volcano-grid, .diff-grid { grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+
+@media (max-width: 1280px) {
+  .body { grid-template-columns: 300px 1fr auto; }
+  .detail { width: 360px; }
+}
+
+/* Tablet: the detail panel becomes a drawer over the map instead of taking a column. */
+@media (max-width: 1024px) {
+  .body { grid-template-columns: 280px 1fr; position: relative; }
+  .body-overview { grid-template-columns: 1fr; }
+  .detail { position: absolute; top: 0; right: 0; bottom: 0; width: min(380px, 90%); z-index: 20;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, .35); }
+  .map-legend { right: 10px; }
+  .timebar { gap: 6px; padding: 6px 8px; }
+  .tick-label { font-size: 10px; }
+}
+
+/* Phone: one column, map and time bar first, then the feed; the detail opens full screen. */
+@media (max-width: 760px) {
+  .app { height: 100dvh; grid-template-rows: auto 1fr; }
+  .header { gap: 8px; padding: 6px 10px; min-height: 44px; }
+  .header h1 { font-size: 13px; flex: 1 1 0; }
+  .header > .muted { display: none; }
+  .header .spacer { display: none; }
+  .body, .body-overview { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; position: static; }
+  .center { order: 1; flex: none; height: 68dvh; }
+  .body-overview .center { height: auto; flex: 1 0 auto; }
+  .body-overview .overview { overflow: visible; padding: 10px; }
+  .body-overview .timebar { position: sticky; bottom: 0; z-index: 10; }
+  .feed { order: 2; flex: none; border-right: none; border-top: 1px solid var(--border); }
+  .cards { overflow: visible; }
+  .detail { position: fixed; inset: 0; top: 0; width: 100%; z-index: 50; box-shadow: none; padding-top: 14px; }
+  .detail .close { font-size: 16px; padding: 4px 10px; }
+  .map-controls { top: 6px; right: 6px; left: 6px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+  .map-controls button { padding: 2px 6px; font-size: 12px; }
+  .map-legend { left: 6px; right: 6px; bottom: 6px; gap: 6px; padding: 3px 6px; }
+  .timebar { flex-wrap: wrap; align-items: center; padding: 6px; }
+  .ticks { order: 1; flex: 1 0 100%; gap: 1px; }
+  .tick-bars { width: 80%; height: 24px !important; }
+  .tick-label { font-size: 9px; }
+  .timebar > button { order: 2; }
+  .timebar > div:last-child { order: 3; flex-direction: row !important; align-items: center !important; }
+  .divider { margin: 0 1px; }
+  .panel { padding: 8px; }
+  .kv td { padding: 2px 4px; }
+}
